@@ -1,0 +1,6 @@
+aiohttp==3.8.3
+bs4==0.0.1
+lxml==4.9.2
+pydantic==1.10.4
+python-box==6.1.0
+disnake==2.8.0
