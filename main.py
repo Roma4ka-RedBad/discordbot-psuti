@@ -110,5 +110,5 @@ async def add_group(inter: disnake.ApplicationCommandInteraction, group: str):
 
 
 total_week_handler.start()
-next_total_week_handler.start()
+#next_total_week_handler.start()
 bot.run('MTA3NzEwMjI4MDMyMDQ4NzUwNA.G1Jpqv.HBU4M7r992WWfbmiP_tYB2323M-HeCDUafXWA0')
