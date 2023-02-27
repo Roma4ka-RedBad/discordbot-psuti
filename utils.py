@@ -24,6 +24,15 @@ def get_channel_or_user_id(inter: disnake.MessageInteraction | disnake.Applicati
         return inter.user.id
 
 
+async def send_message_by_chats(bot, chats: list, *args, **kwargs):
+    for chat in chats:
+        if chat.guild_id:
+            channel = bot.get_guild(chat.guild_id).get_channel(chat.channel_id)
+        else:
+            channel = bot.get_user(chat.channel_id)
+        await channel.send(*args, **kwargs)
+
+
 def get_lesson_by_index(index: int, lessons: list):
     for index_, lesson in enumerate(lessons):
         if index_ == index:
@@ -31,7 +40,8 @@ def get_lesson_by_index(index: int, lessons: list):
 
 
 def get_lesson_embed(day, lesson, college_url, group_name, group_url):
-    cvh = disnake.Embed(title=f"{WEEKDAYS[int(day.date.strftime('%w')) - 1]} {day.date.strftime('%d.%m.%Y')}", color=lesson.bgcolor)
+    cvh = disnake.Embed(title=f"{WEEKDAYS[int(day.date.strftime('%w')) - 1]} {day.date.strftime('%d.%m.%Y')}",
+                        color=lesson.bgcolor)
     cvh.set_author(name=f"Расписание занятий | {group_name}", url=college_url + group_url)
     cvh.set_footer(text=f"Источник: {college_url}")
     cvh.add_field(name='№ пары', value=lesson.number)
