@@ -13,7 +13,6 @@ database = Database(college, "mongodb://mongo:yPR3lNGv1bH4eYoDPqgc@containers-us
 @tasks.loop(seconds=15)
 async def week_handler():
     for group_name, group_obj in database.groups_by_handlers.copy().items():
-        print(group_name, group_obj)
         new_total_week = (await college.get_desc_by_url(group_obj.total_week_obj.total_week_href)).get_week()
         if new_total_week != group_obj.total_week_obj:
             print("[INFO] Новые изменения в расписании!")
