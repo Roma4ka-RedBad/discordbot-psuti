@@ -12,7 +12,7 @@ database = Database(college, "mongodb://mongo:yPR3lNGv1bH4eYoDPqgc@containers-us
 
 @tasks.loop(seconds=15)
 async def week_handler():
-    for group_name, group_obj in database.groups_by_handlers.items():
+    for group_name, group_obj in database.groups_by_handlers.copy().items():
         new_total_week = (await college.get_desc_by_url(group_obj.total_week_obj.total_week_href)).get_week()
         if new_total_week != group_obj.total_week_obj:
             print("[INFO] Новые изменения в расписании!")
@@ -26,7 +26,7 @@ async def week_handler():
                             if lesson != get_lesson_by_index(index, founded_day.lessons):
                                 cvh = get_lesson_embed(day, lesson, college.url, group_name, new_total_week.total_week_href)
                                 await send_message_by_chats(bot, group_obj.chats, content="_Заметил изменения в паре на этой неделе!_", embed=cvh)
-            group_obj.total_week_obj = new_total_week
+            database.groups_by_handlers[group_name].total_week_obj = new_total_week
 
         new_next_week = (await college.get_desc_by_url(group_obj.total_week_obj.next_week_href)).get_week()
         if new_next_week != group_obj.next_week_obj and group_obj.next_week_obj.start_date == new_next_week.start_date:
@@ -37,7 +37,7 @@ async def week_handler():
                         if lesson != get_lesson_by_index(index, founded_day.lessons):
                             cvh = get_lesson_embed(day, lesson, college.url, group_name, new_next_week.total_week_href)
                             await send_message_by_chats(bot, group_obj.chats, content="_Заметил изменения в паре на следующей неделе!_", embed=cvh)
-            group_obj.next_week_obj = new_next_week
+            database.groups_by_handlers[group_name].next_week_obj = new_next_week
 
 
 @bot.slash_command(description="Выбор группы для просмотра расписания")
