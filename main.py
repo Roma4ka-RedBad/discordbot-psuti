@@ -17,7 +17,8 @@ async def week_handler():
         if new_total_week != group_obj.total_week_obj:
             print("[INFO] Новые изменения в расписании!")
             if group_obj.total_week_obj.start_date != new_total_week.start_date:
-                await send_message_by_chats(bot, group_obj.chats, content="_Новая неделя наступила! Ложимся спать, завтра в садик!_")
+                pass
+                #await send_message_by_chats(bot, group_obj.chats, content="_Новая неделя наступила! Ложимся спать, завтра в садик!_")
             else:
                 for day in new_total_week.days:
                     founded_day = get_day_by_date(day.date, group_obj.total_week_obj.days)
@@ -30,15 +31,16 @@ async def week_handler():
             database.groups_by_handlers[group_name].total_week_obj = new_total_week
 
         new_next_week = (await college.get_desc_by_url(group_obj.total_week_obj.next_week_href)).get_week()
-        if new_next_week != group_obj.next_week_obj and group_obj.next_week_obj.start_date == new_next_week.start_date:
-            for day in new_next_week.days:
-                founded_day = get_day_by_date(day.date, group_obj.next_week_obj.days)
-                if day != founded_day:
-                    for index, lesson in enumerate(day.lessons):
-                        old_lesson = get_lesson_by_index(index, founded_day.lessons)
-                        if lesson != old_lesson:
-                            cvh = get_lesson_embed(day, lesson, college.url, group_name, new_next_week.total_week_href, get_new_content_indexes(lesson, old_lesson))
-                            await send_message_by_chats(bot, group_obj.chats, content="_Заметил изменения в паре на следующей неделе!_", embed=cvh)
+        if new_next_week != group_obj.next_week_obj:
+            if group_obj.next_week_obj.start_date == new_next_week.start_date:
+                for day in new_next_week.days:
+                    founded_day = get_day_by_date(day.date, group_obj.next_week_obj.days)
+                    if day != founded_day:
+                        for index, lesson in enumerate(day.lessons):
+                            old_lesson = get_lesson_by_index(index, founded_day.lessons)
+                            if lesson != old_lesson:
+                                cvh = get_lesson_embed(day, lesson, college.url, group_name, new_next_week.total_week_href, get_new_content_indexes(lesson, old_lesson))
+                                await send_message_by_chats(bot, group_obj.chats, content="_Заметил изменения в паре на следующей неделе!_", embed=cvh)
             database.groups_by_handlers[group_name].next_week_obj = new_next_week
 
 
