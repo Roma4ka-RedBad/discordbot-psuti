@@ -1,7 +1,9 @@
 import aiohttp
 import disnake
+from peewee import SqliteDatabase
 
 WEEKDAYS = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
+DATABASE = SqliteDatabase("database.sqlite")
 
 
 async def async_request(url: str):

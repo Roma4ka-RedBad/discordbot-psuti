@@ -1,5 +1,6 @@
 import disnake
-from utils import parting, WEEKDAYS, get_lesson_embed
+import peewee
+from utils import parting, WEEKDAYS, DATABASE, get_lesson_embed
 from pydantic import BaseModel
 from datetime import datetime
 from typing import List
@@ -148,3 +149,13 @@ class GroupsView(disnake.ui.View):
         multi_group_urls = parting(group_urls, 25)
         for index, group_urls in enumerate(multi_group_urls):
             self.add_item(Groups(group_urls, index + 1, college, user_id))
+
+
+class GroupDB(peewee.Model):
+    class Meta:
+        database = DATABASE
+        table_name = "groups"
+
+    group_name = peewee.TextField()
+    guild_id = peewee.BigIntegerField(null=True)
+    channel_id = peewee.BigIntegerField(null=True)

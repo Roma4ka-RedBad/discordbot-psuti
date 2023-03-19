@@ -1,47 +1,53 @@
-import disnake
+﻿import disnake
 from disnake.ext import commands, tasks
 from models import GroupsView, WeekdaysView
-from utils import get_day_by_date, get_lesson_by_index, get_lesson_embed, get_channel_or_user_id, send_message_by_chats, get_new_content_indexes
+from utils import get_day_by_date, get_lesson_by_index, get_lesson_embed, get_channel_or_user_id, send_message_by_chats, get_new_content_indexes, DATABASE
 from database import Database
 from college import CollegeDesc
 
 bot = commands.Bot(command_prefix='/', intents=disnake.Intents.all(), reload=True)
 college = CollegeDesc()
-database = Database(college, "mongodb://mongo:yPR3lNGv1bH4eYoDPqgc@containers-us-west-44.railway.app:6278")
+database = Database(college, DATABASE)
 
 
 @tasks.loop(seconds=15)
 async def week_handler():
-    for group_name, group_obj in database.groups_by_handlers.copy().items():
-        new_total_week = (await college.get_desc_by_url(group_obj.total_week_obj.total_week_href)).get_week()
-        if new_total_week != group_obj.total_week_obj:
-            print("[INFO] Новые изменения в расписании!")
-            if group_obj.total_week_obj.start_date != new_total_week.start_date:
-                pass
-                #await send_message_by_chats(bot, group_obj.chats, content="_Новая неделя наступила! Ложимся спать, завтра в садик!_")
-            else:
-                for day in new_total_week.days:
-                    founded_day = get_day_by_date(day.date, group_obj.total_week_obj.days)
-                    if day != founded_day:
-                        for index, lesson in enumerate(day.lessons):
-                            old_lesson = get_lesson_by_index(index, founded_day.lessons)
-                            if lesson != old_lesson:
-                                cvh = get_lesson_embed(day, lesson, college.url, group_name,new_total_week.total_week_href, get_new_content_indexes(lesson, old_lesson))
-                                await send_message_by_chats(bot, group_obj.chats, content="_Заметил изменения в паре на этой неделе!_", embed=cvh)
-            database.groups_by_handlers[group_name].total_week_obj = new_total_week
+    try:
+        for group_name, group_obj in database.groups_by_handlers.copy().items():
+            new_total_week = (await college.get_desc_by_url(group_obj.total_week_obj.total_week_href)).get_week()
+            if new_total_week != group_obj.total_week_obj:
+                print(f"[{group_name}] Новые изменения в расписании!")
+                if group_obj.total_week_obj.start_date != new_total_week.start_date:
+                    print(f"    [{group_name}] Смена недели!")
+                    # await send_message_by_chats(bot, group_obj.chats, content="_Новая неделя наступила! Ложимся спать, завтра в садик!_")
+                else:
+                    print(f"    [{group_name}] Смена событий!")
+                    for day in new_total_week.days:
+                        founded_day = get_day_by_date(day.date, group_obj.total_week_obj.days)
+                        if day != founded_day:
+                            for index, lesson in enumerate(day.lessons):
+                                old_lesson = get_lesson_by_index(index, founded_day.lessons)
+                                if lesson != old_lesson:
+                                    cvh = get_lesson_embed(day, lesson, college.url, group_name, new_total_week.total_week_href, get_new_content_indexes(lesson, old_lesson))
+                                    await send_message_by_chats(bot, group_obj.chats, content="_Заметил изменения в паре на этой неделе!_", embed=cvh)
+                database.groups_by_handlers[group_name].total_week_obj = new_total_week
 
-        new_next_week = (await college.get_desc_by_url(group_obj.total_week_obj.next_week_href)).get_week()
-        if new_next_week != group_obj.next_week_obj:
-            if group_obj.next_week_obj.start_date == new_next_week.start_date:
-                for day in new_next_week.days:
-                    founded_day = get_day_by_date(day.date, group_obj.next_week_obj.days)
-                    if day != founded_day:
-                        for index, lesson in enumerate(day.lessons):
-                            old_lesson = get_lesson_by_index(index, founded_day.lessons)
-                            if lesson != old_lesson:
-                                cvh = get_lesson_embed(day, lesson, college.url, group_name, new_next_week.total_week_href, get_new_content_indexes(lesson, old_lesson))
-                                await send_message_by_chats(bot, group_obj.chats, content="_Заметил изменения в паре на следующей неделе!_", embed=cvh)
-            database.groups_by_handlers[group_name].next_week_obj = new_next_week
+            new_next_week = (await college.get_desc_by_url(group_obj.total_week_obj.next_week_href)).get_week()
+            if new_next_week != group_obj.next_week_obj:
+                print(f"[{group_name}] Новые изменения в расписании!")
+                if group_obj.next_week_obj.start_date == new_next_week.start_date:
+                    print(f"    [{group_name}] Смена событий!")
+                    for day in new_next_week.days:
+                        founded_day = get_day_by_date(day.date, group_obj.next_week_obj.days)
+                        if day != founded_day:
+                            for index, lesson in enumerate(day.lessons):
+                                old_lesson = get_lesson_by_index(index, founded_day.lessons)
+                                if lesson != old_lesson:
+                                    cvh = get_lesson_embed(day, lesson, college.url, group_name, new_next_week.total_week_href, get_new_content_indexes(lesson, old_lesson))
+                                    await send_message_by_chats(bot, group_obj.chats, content="_Заметил изменения в паре на следующей неделе!_", embed=cvh)
+                database.groups_by_handlers[group_name].next_week_obj = new_next_week
+    except Exception as err:
+        print(err)
 
 
 @bot.slash_command(description="Выбор группы для просмотра расписания")
@@ -100,5 +106,5 @@ async def on_ready():
     print('[INFO] Bot connected!')
 
 
-bot.run('MTA3NzEwMjI4MDMyMDQ4NzUwNA.G1Jpqv.HBU4M7r992WWfbmiP_tYB2323M-HeCDUafXWA0')
-#bot.run('MTA4MDgwMDkyNzc1MTA4MjAwNA.GE2NJS.wxHlNU2A5lLJljhTchAvmk9iJJjr2egpfDuJzQ')
+# bot.run('MTA3NzEwMjI4MDMyMDQ4NzUwNA.G1Jpqv.HBU4M7r992WWfbmiP_tYB2323M-HeCDUafXWA0')
+bot.run('MTA4MDgwMDkyNzc1MTA4MjAwNA.GE2NJS.wxHlNU2A5lLJljhTchAvmk9iJJjr2egpfDuJzQ')
