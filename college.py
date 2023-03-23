@@ -1,5 +1,6 @@
 import bs4
 from datetime import datetime
+from loguru import logger
 from typing import List
 from utils import async_request, parting
 from models import DescWeek, DescDay, DescLesson
@@ -54,7 +55,7 @@ class DescObject:
                         case 6:
                             lesson.tasks = self._set_hyperlinks(obj.get_text(separator="\n"), obj.contents)
                 except Exception:
-                    print("Error in parsing college code!")
+                    logger.error(f"Error in parsing college code ({obj_id})!")
 
             event_type = lesson.number.lower().strip().replace(" ", "_")
             if event_type in self.color_schemes:

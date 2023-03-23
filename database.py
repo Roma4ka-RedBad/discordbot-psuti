@@ -1,5 +1,6 @@
 import pymongo
 from box import Box
+from loguru import logger
 
 
 class Database:
@@ -39,6 +40,8 @@ class Database:
                 "channel_id": channel_id
             })
 
+        logger.log("DATABASE", f"Добавлены данные: {group_name} {guild_id} {channel_id}")
+
     def delete_group(self, group_name: str, channel_id: int, delete_to_mongo: bool = True):
         for chat in self.groups_by_handlers[group_name].chats:
             if chat.channel_id == channel_id:
@@ -49,6 +52,7 @@ class Database:
                         "channel_id": chat.channel_id
                     })
 
+                logger.log("DATABASE", f"Удалены данные: {group_name} {chat.guild_id} {chat.channel_id}")
                 self.groups_by_handlers[group_name].chats.remove(chat)
 
         if len(self.groups_by_handlers[group_name].chats) == 0:

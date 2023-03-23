@@ -5,3 +5,4 @@ pydantic==1.10.4
 python-box==6.1.0
 disnake==2.8.0
 pymongo==4.3.3
+loguru==0.6.0

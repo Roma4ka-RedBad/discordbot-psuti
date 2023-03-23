@@ -1,4 +1,5 @@
 import disnake
+from loguru import logger
 from disnake.ext import commands, tasks
 from models import GroupsView, WeekdaysView
 from utils import get_day_by_date, get_lesson_by_index, get_lesson_embed, get_channel_or_user_id, send_message_by_chats, get_new_content_indexes
@@ -7,7 +8,7 @@ from college import CollegeDesc
 
 bot = commands.Bot(command_prefix='/', intents=disnake.Intents.all(), reload=True)
 college = CollegeDesc()
-database = Database(college, "mongodb://mongo:yPR3lNGv1bH4eYoDPqgc@containers-us-west-44.railway.app:6278")
+database = Database(college, "mongodb://193.43.249.31:27017")
 
 
 @tasks.loop(seconds=15)
@@ -18,7 +19,7 @@ async def week_handler():
             print("[INFO] Новые изменения в расписании!")
             if group_obj.total_week_obj.start_date != new_total_week.start_date:
                 pass
-                #await send_message_by_chats(bot, group_obj.chats, content="_Новая неделя наступила! Ложимся спать, завтра в садик!_")
+                # await send_message_by_chats(bot, group_obj.chats, content="_Новая неделя наступила! Ложимся спать, завтра в садик!_")
             else:
                 for day in new_total_week.days:
                     founded_day = get_day_by_date(day.date, group_obj.total_week_obj.days)
@@ -26,7 +27,7 @@ async def week_handler():
                         for index, lesson in enumerate(day.lessons):
                             old_lesson = get_lesson_by_index(index, founded_day.lessons)
                             if lesson != old_lesson:
-                                cvh = get_lesson_embed(day, lesson, college.url, group_name,new_total_week.total_week_href, get_new_content_indexes(lesson, old_lesson))
+                                cvh = get_lesson_embed(day, lesson, college.url, group_name, new_total_week.total_week_href, get_new_content_indexes(lesson, old_lesson))
                                 await send_message_by_chats(bot, group_obj.chats, content="_Заметил изменения в паре на этой неделе!_", embed=cvh)
             database.groups_by_handlers[group_name].total_week_obj = new_total_week
 
@@ -40,8 +41,13 @@ async def week_handler():
                             old_lesson = get_lesson_by_index(index, founded_day.lessons)
                             if lesson != old_lesson:
                                 cvh = get_lesson_embed(day, lesson, college.url, group_name, new_next_week.total_week_href, get_new_content_indexes(lesson, old_lesson))
-                                await send_message_by_chats(bot, group_obj.chats, content="_Заметил изменения в паре на следующей неделе!_", embed=cvh)
+                                await send_message_by_chats(bot, group_obj.chats,content="_Заметил изменения в паре на следующей неделе!_", embed=cvh)
             database.groups_by_handlers[group_name].next_week_obj = new_next_week
+
+
+@week_handler.error
+async def week_handler_error(*_):
+    logger.opt(exception=True).error("Ошибка в хендлере событий!")
 
 
 @bot.slash_command(description="Выбор группы для просмотра расписания")
@@ -95,10 +101,11 @@ async def del_group(inter: disnake.ApplicationCommandInteraction, group: str):
 
 @bot.event
 async def on_ready():
+    logger.level("DATABASE", color='<blue>', icon='💿', no=10)
+    logger.info('Bot connected!')
     await database.init()
     week_handler.start()
-    print('[INFO] Bot connected!')
 
 
 bot.run('MTA3NzEwMjI4MDMyMDQ4NzUwNA.G1Jpqv.HBU4M7r992WWfbmiP_tYB2323M-HeCDUafXWA0')
-#bot.run('MTA4MDgwMDkyNzc1MTA4MjAwNA.GE2NJS.wxHlNU2A5lLJljhTchAvmk9iJJjr2egpfDuJzQ')
+# bot.run('MTA4MDgwMDkyNzc1MTA4MjAwNA.GE2NJS.wxHlNU2A5lLJljhTchAvmk9iJJjr2egpfDuJzQ')
