@@ -16,11 +16,11 @@ async def week_handler():
     for group_name, group_obj in database.groups_by_handlers.copy().items():
         new_total_week = (await college.get_desc_by_url(group_obj.total_week_obj.total_week_href)).get_week()
         if new_total_week != group_obj.total_week_obj:
-            print("[INFO] Новые изменения в расписании!")
+            logger.info(f"[{group_name}] Новые изменения в расписании!")
             if group_obj.total_week_obj.start_date != new_total_week.start_date:
-                pass
-                # await send_message_by_chats(bot, group_obj.chats, content="_Новая неделя наступила! Ложимся спать, завтра в садик!_")
+                logger.info(f"[{group_name}] Смена недели!")
             else:
+                logger.info(f"[{group_name}] Смена пар!")
                 for day in new_total_week.days:
                     founded_day = get_day_by_date(day.date, group_obj.total_week_obj.days)
                     if day != founded_day:
@@ -33,7 +33,9 @@ async def week_handler():
 
         new_next_week = (await college.get_desc_by_url(group_obj.total_week_obj.next_week_href)).get_week()
         if new_next_week != group_obj.next_week_obj:
+            logger.info(f"[{group_name}] Новые изменения в расписании на след. неделе!")
             if group_obj.next_week_obj.start_date == new_next_week.start_date:
+                logger.info(f"[{group_name}] Смена пар!")
                 for day in new_next_week.days:
                     founded_day = get_day_by_date(day.date, group_obj.next_week_obj.days)
                     if day != founded_day:
