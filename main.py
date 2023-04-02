@@ -43,8 +43,10 @@ async def week_handler():
                             old_lesson = get_lesson_by_index(index, founded_day.lessons)
                             if lesson != old_lesson:
                                 cvh = get_lesson_embed(day, lesson, college.url, group_name, new_next_week.total_week_href, get_new_content_indexes(lesson, old_lesson))
-                                await send_message_by_chats(bot, group_obj.chats,content="_Заметил изменения в паре на следующей неделе!_", embed=cvh)
+                                await send_message_by_chats(bot, group_obj.chats, content="_Заметил изменения в паре на следующей неделе!_", embed=cvh)
             database.groups_by_handlers[group_name].next_week_obj = new_next_week
+
+        logger.debug(f"[OLD] Неделя (дата): {group_obj.total_week_obj} {group_obj.next_week_obj}\n[NEW] Неделя (дата): {database.groups_by_handlers[group_name].total_week_obj} {database.groups_by_handlers[group_name].next_week_obj}")
 
 
 @week_handler.error
