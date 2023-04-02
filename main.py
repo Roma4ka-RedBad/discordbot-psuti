@@ -8,7 +8,7 @@ from college import CollegeDesc
 
 bot = commands.Bot(command_prefix='/', intents=disnake.Intents.all(), reload=True)
 college = CollegeDesc()
-database = Database(college, "mongodb://193.43.249.31:27017")
+database = Database(college, "mongodb://mongo:yPR3lNGv1bH4eYoDPqgc@containers-us-west-44.railway.app:6278")
 
 
 @tasks.loop(seconds=15)
