@@ -46,7 +46,7 @@ async def week_handler():
                                 await send_message_by_chats(bot, group_obj.chats, content="_Заметил изменения в паре на следующей неделе!_", embed=cvh)
             database.groups_by_handlers[group_name].next_week_obj = new_next_week
 
-        logger.debug(f"[OLD] Неделя (дата): {group_obj.total_week_obj} {group_obj.next_week_obj}\n[NEW] Неделя (дата): {database.groups_by_handlers[group_name].total_week_obj} {database.groups_by_handlers[group_name].next_week_obj}")
+        logger.debug(f"[OLD] Неделя (дата): {group_obj.total_week_obj.start_date} {group_obj.next_week_obj.start_date} | [NEW] Неделя (дата): {database.groups_by_handlers[group_name].total_week_obj.start_date} {database.groups_by_handlers[group_name].next_week_obj.start_date}")
 
 
 @week_handler.error
