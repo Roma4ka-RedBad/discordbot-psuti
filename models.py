@@ -80,12 +80,15 @@ class WeekdaysView(disnake.ui.View):
         await inter.response.defer()
         if self.user_id == inter.user.id:
             group_object = await self.college.get_desc_by_url(self.group_data.get_week().last_week_href)
-            week = group_object.get_week()
-            await inter.followup.edit_message(
-                message_id=inter.message.id,
-                view=WeekdaysView(self.group.upper(), group_object, self.groups_list, self.college, self.user_id),
-                embeds=[],
-                content=f"{week.start_date.strftime('%d.%m.%Y')} – {week.end_date.strftime('%d.%m.%Y')}")
+            if group_object:
+                week = group_object.get_week()
+                await inter.followup.edit_message(
+                    message_id=inter.message.id,
+                    view=WeekdaysView(self.group.upper(), group_object, self.groups_list, self.college, self.user_id),
+                    embeds=[],
+                    content=f"{week.start_date.strftime('%d.%m.%Y')} – {week.end_date.strftime('%d.%m.%Y')}")
+            else:
+                await inter.followup.send("Произошла ошибка на сервере!", ephemeral=True)
         else:
             await inter.followup.send(content="Вам не принадлежит это сообщение! Вызовите своё в этом чате или у меня в личке.", ephemeral=True)
 
@@ -103,12 +106,15 @@ class WeekdaysView(disnake.ui.View):
         await inter.response.defer()
         if self.user_id == inter.user.id:
             group_object = await self.college.get_desc_by_url(self.group_data.get_week().next_week_href)
-            week = group_object.get_week()
-            await inter.followup.edit_message(
-                message_id=inter.message.id,
-                view=WeekdaysView(self.group.upper(), group_object, self.groups_list, self.college, self.user_id),
-                embeds=[],
-                content=f"{week.start_date.strftime('%d.%m.%Y')} – {week.end_date.strftime('%d.%m.%Y')}")
+            if group_object:
+                week = group_object.get_week()
+                await inter.followup.edit_message(
+                    message_id=inter.message.id,
+                    view=WeekdaysView(self.group.upper(), group_object, self.groups_list, self.college, self.user_id),
+                    embeds=[],
+                    content=f"{week.start_date.strftime('%d.%m.%Y')} – {week.end_date.strftime('%d.%m.%Y')}")
+            else:
+                await inter.followup.send("Произошла ошибка на сервере!", ephemeral=True)
         else:
             await inter.followup.send(content="Вам не принадлежит это сообщение! Вызовите своё в этом чате или у меня в личке.", ephemeral=True)
 
@@ -129,15 +135,18 @@ class Groups(disnake.ui.StringSelect):
         await inter.response.defer()
         if self.user_id == inter.user.id:
             groups_list = await self.college.get_groups()
-            group_data = await self.college.get_desc_by_url(groups_list[self.values[0]])
-            week = group_data.get_week()
-            if len(week.days) > 0:
-                await inter.followup.edit_message(
-                    message_id=inter.message.id,
-                    content=f"{week.start_date.strftime('%d.%m.%Y')} – {week.end_date.strftime('%d.%m.%Y')}",
-                    view=WeekdaysView(self.values[0], group_data, groups_list, self.college, self.user_id))
+            if groups_list:
+                group_data = await self.college.get_desc_by_url(groups_list[self.values[0]])
+                week = group_data.get_week()
+                if len(week.days) > 0:
+                    await inter.followup.edit_message(
+                        message_id=inter.message.id,
+                        content=f"{week.start_date.strftime('%d.%m.%Y')} – {week.end_date.strftime('%d.%m.%Y')}",
+                        view=WeekdaysView(self.values[0], group_data, groups_list, self.college, self.user_id))
+                else:
+                    await inter.followup.send(content="У данной группы нет пар на этой неделе!", ephemeral=True)
             else:
-                await inter.followup.send(content="У данной группы нет пар на этой неделе!", ephemeral=True)
+                await inter.followup.send("Произошла ошибка на сервере!", ephemeral=True)
         else:
             await inter.followup.send(content="Вам не принадлежит это сообщение! Вызовите своё в этом чате или у меня в личке.", ephemeral=True)
 

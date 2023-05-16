@@ -122,20 +122,22 @@ class CollegeDesc:
 
     async def get_groups(self) -> dict:
         page = await async_request(self.url)
-        page = bs4.BeautifulSoup(page, 'lxml')
-        group_urls = {}
+        if page:
+            page = bs4.BeautifulSoup(page, 'lxml')
+            group_urls = {}
 
-        html_obj = page.find_all('a')
-        for a_block in html_obj:
-            if 'obj' in a_block.get('href'):
-                group_urls.update({
-                    a_block.b.text.upper(): a_block.get('href')
-                })
+            html_obj = page.find_all('a')
+            for a_block in html_obj:
+                if 'obj' in a_block.get('href'):
+                    group_urls.update({
+                        a_block.b.text.upper(): a_block.get('href')
+                    })
 
-        return group_urls
+            return group_urls
 
     async def get_desc_by_url(self, group_url: str) -> DescObject:
         desc_object = await async_request(self.url + group_url)
-        desc_object = bs4.BeautifulSoup(desc_object, 'lxml')
-        tables = [obj for obj in desc_object.body if obj.name == 'table']
-        return DescObject(group_url, tables[1], tables[2])
+        if desc_object:
+            desc_object = bs4.BeautifulSoup(desc_object, 'lxml')
+            tables = [obj for obj in desc_object.body if obj.name == 'table']
+            return DescObject(group_url, tables[1], tables[2])
