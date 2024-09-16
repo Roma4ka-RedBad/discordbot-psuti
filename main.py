@@ -127,5 +127,5 @@ async def on_ready():
     week_handler.start()
 
 
-bot.run('MTA3NzEwMjI4MDMyMDQ4NzUwNA.G1Jpqv.HBU4M7r992WWfbmiP_tYB2323M-HeCDUafXWA0')
-# bot.run('MTA4MDgwMDkyNzc1MTA4MjAwNA.GE2NJS.wxHlNU2A5lLJljhTchAvmk9iJJjr2egpfDuJzQ')
+bot.run()
+# bot.run()
